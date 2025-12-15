@@ -1,0 +1,270 @@
+{% extends 'base.html' %} {% block title %} – Notificações{% endblock %} 
+{%block content %}
+<div class="container py-5">
+  <div class="row">
+    <div class="col-lg-10 mx-auto">
+      <!-- Header -->
+      <div
+        class="d-flex justify-content-between align-items-center mb-5 pb-4 border-bottom"
+      >
+        <div>
+          <h1 class="display-5 fw-bold mb-0">
+            <i class="fa-solid fa-bell me-2 text-primary"></i>Notificações
+          </h1>
+          <p class="text-muted mt-2">
+            Fique atualizado com tudo o que acontece no seu blog
+          </p>
+        </div>
+        <div>
+          <span class="badge bg-primary fs-6 px-3 py-2">
+            <i class="fa-solid fa-circle-exclamation me-2"></i>{{notifications|length }} {{notifications|length|pluralize:"notificação,notificações" }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Notificações -->
+      <div class="notifications-container">
+        {% for notification in notifications %}
+        <div
+          class="card border-0 shadow-sm mb-3 notification-card {% if not notification.read %}notification-unread border-start border-primary border-4{% endif %} hover-shadow transition"
+          style="transition: all 0.3s ease"
+        >
+          <div class="card-body">
+            <div class="d-flex">
+              <!-- Avatar e Ícone -->
+              <div class="flex-shrink-0 me-3">
+                <div class="avatar-container" style="position: relative">
+                  {% if notification.actor %}
+                  <img
+                    src="{{ notification.actor.avatar.url|default:'/media/icones/favicon-32x32.png' }}"
+                    alt="avatar"
+                    style="
+                      width: 48px;
+                      height: 48px;
+                      object-fit: cover;
+                      border-radius: 50%;
+                      border: 2px solid #f0f0f0;
+                    "
+                  />
+                  {% else %}
+                  <div
+                    style="
+                      width: 48px;
+                      height: 48px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      background: linear-gradient(
+                        135deg,
+                        #667eea 0%,
+                        #764ba2 100%
+                      );
+                      border-radius: 50%;
+                      color: white;
+                    "
+                  >
+                    <i class="fa-solid fa-bell-ring fs-5"></i>
+                  </div>
+                  {% endif %}
+
+                  <!-- Badge de não lida -->
+                  {% if not notification.read %}
+                  <span
+                    class="position-absolute top-0 end-0 translate-middle badge rounded-pill bg-danger"
+                    style="font-size: 0.5rem; padding: 0.25rem 0.4rem"
+                  >
+                    <i class="fa-solid fa-dot"></i>
+                  </span>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Conteúdo -->
+              <div class="flex-grow-1">
+                <div
+                  class="d-flex justify-content-between align-items-start mb-2"
+                >
+                  <div class="flex-grow-1">
+                    {% if notification.title %}
+                    <h6
+                      class="card-title fw-bold mb-1 {% if not notification.read %}text-dark{% else %}text-muted{% endif %}"
+                    >
+                      {{ notification.title }}
+                    </h6>
+                    {% elif notification.verb %}
+                    <h6
+                      class="card-title fw-bold mb-1 {% if not notification.read %}text-dark{% else %}text-muted{% endif %}"
+                    >
+                      <i class="fa-solid fa-comment-dots me-2 text-info"></i>{{
+                      notification.verb }}
+                    </h6>
+                    {% else %}
+                    <h6
+                      class="card-title fw-bold mb-1 {% if not notification.read %}text-dark{% else %}text-muted{% endif %}"
+                    >
+                      <i class="fa-solid fa-info-circle me-2 text-warning"></i
+                      >{{ notification.message|truncatechars:80 }}
+                    </h6>
+                    {% endif %} {% if notification.message %}
+                    <p class="card-text text-muted small mb-0">
+                      {{ notification.message|truncatechars:150 }}
+                    </p>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <!-- Rodapé com tempo e ações -->
+                <div
+                  class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top"
+                >
+                  <small class="text-muted">
+                    <i class="fa-solid fa-clock me-2"></i>{{
+                    notification.timestamp|timesince }} atrás
+                  </small>
+
+                  <div>
+                    {% if not notification.read %}
+                    <form
+                      method="post"
+                      action="{% url 'blog:marcar_lida' notification.id %}"
+                      class="d-inline"
+                    >
+                      {% csrf_token %}
+                      <button
+                        type="submit"
+                        class="btn btn-sm btn-outline-primary hover-lift"
+                        style="transition: all 0.3s ease"
+                      >
+                        <i class="fa-solid fa-check-circle me-1"></i>Marcar como
+                        lida
+                      </button>
+                    </form>
+                    {% else %}
+                    <span class="badge bg-success">
+                      <i class="fa-solid fa-check me-1"></i>Lida
+                    </span>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-5">
+          <i
+            class="fa-solid fa-inbox fs-1 text-muted mb-3"
+            style="display: block"
+          ></i>
+          <p class="text-muted fs-5">Você não tem notificações.</p>
+          <p class="text-muted small">Suas notificações aparecerão aqui</p>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Paginação -->
+      {% if is_paginated %}
+      <nav class="mt-5 d-flex justify-content-center">
+        <ul class="pagination">
+          {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="?page={{ page_obj.previous_page_number }}"
+            >
+              <i class="fa-solid fa-chevron-left me-1"></i>Anterior
+            </a>
+          </li>
+          {% else %}
+          <li class="page-item disabled">
+            <span class="page-link">
+              <i class="fa-solid fa-chevron-left me-1"></i>Anterior
+            </span>
+          </li>
+          {% endif %}
+
+          <li class="page-item disabled">
+            <span class="page-link">
+              Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+            </span>
+          </li>
+
+          {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+              Próxima<i class="fa-solid fa-chevron-right ms-1"></i>
+            </a>
+          </li>
+          {% else %}
+          <li class="page-item disabled">
+            <span class="page-link">
+              Próxima<i class="fa-solid fa-chevron-right ms-1"></i>
+            </span>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+  .notification-card {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .notification-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+    transform: translateY(-2px);
+  }
+
+  .notification-unread {
+    background-color: rgba(13, 110, 253, 0.02);
+  }
+
+  .hover-lift {
+    transition: all 0.3s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+  }
+
+  .transition {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .avatar-container {
+    animation: fadeIn 0.5s ease-in;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @media (max-width: 576px) {
+    .card-body {
+      padding: 1rem;
+    }
+
+    .d-flex > div:first-child {
+      min-width: auto !important;
+    }
+
+    .text-muted.small {
+      font-size: 0.75rem !important;
+    }
+  }
+</style>
+
+{% endblock %}

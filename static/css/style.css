@@ -1,0 +1,72 @@
+/* ==== ANIMAÇÃO ÍCONE + TOOLTIP ==== */
+.icon-hover {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 8px;
+  transition: all 0.3s ease;
+}
+
+.icon-hover a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.icon-hover i {
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
+  color: inherit;
+}
+
+.icon-hover:hover i {
+  color: #0d6efd !important;
+  transform: translateY(-10px) scale(1.15);
+}
+
+.icon-text {
+  position: absolute;
+  top: calc(100% + 20px);
+  left: 50%;
+  background: #212529;
+  padding: 8px 12px;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 9999;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.icon-text::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border: 5px solid transparent;
+  border-bottom-color: #212529;
+}
+
+.icon-hover:hover .icon-text {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Garantir que o hover funciona em mobile */
+@media (hover: hover) and (pointer: fine) {
+  .icon-hover:hover i {
+    color: #0d6efd !important;
+    transform: translateY(-10px) scale(1.15);
+  }
+}
